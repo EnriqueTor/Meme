@@ -61,9 +61,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBAction func sharePressed(_ sender: Any) {
         
         let meme = generateMemedImage()
-        
         let ac = UIActivityViewController(activityItems: [meme], applicationActivities: nil)
-        
         present(ac, animated: true, completion: nil)
         
         ac.completionWithItemsHandler = {
@@ -124,6 +122,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
 
     }
     
+    // imagePicker
+    
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]){
         
         if let image = info[UIImagePickerControllerOriginalImage] as? UIImage {
@@ -138,9 +138,24 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         dismiss(animated: true, completion: nil)
     }
     
+    func pickPhotoFromAlbum() {
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.navigationBar.tintColor = UIColor.white
+        imagePicker.sourceType = .photoLibrary
+        present(imagePicker, animated: true, completion: nil)
+    }
+
+    
+    // keyboard
+    
     func keyboardWillShow(_ notification:Notification) {
         
+        if bottomText.isEditing {
+        
         view.frame.origin.y = 0 - getKeyboardHeight(notification)
+            
+        }
     }
     
     func getKeyboardHeight(_ notification:Notification) -> CGFloat {
@@ -199,12 +214,5 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         addPhoto.isHidden = false
     }
     
-    func pickPhotoFromAlbum() {
-        let imagePicker = UIImagePickerController()
-        imagePicker.delegate = self
-        imagePicker.navigationBar.tintColor = UIColor.white
-        imagePicker.sourceType = .photoLibrary
-        present(imagePicker, animated: true, completion: nil)
-    }
 }
 
