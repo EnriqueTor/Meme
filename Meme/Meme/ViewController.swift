@@ -33,7 +33,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(true)
         subscribeToKeyboardNotifications()
-        
+        cameraButton.isEnabled = UIImagePickerController.isSourceTypeAvailable(.camera)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -45,20 +45,15 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     func setupView() {
         
-        topText.text = "TOP"
-        bottomText.text = "BOTTOM"
-        
-        topText.textAlignment = .center
-        bottomText.textAlignment = .center
-        
-        topText.autocapitalizationType = .allCharacters
-        bottomText.autocapitalizationType = .allCharacters
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
         
         let memeTextAttributes:[String:Any] = [
-            NSStrokeColorAttributeName: UIColor.black,
             NSForegroundColorAttributeName: UIColor.white,
+            NSStrokeColorAttributeName: UIColor.black,
+            NSParagraphStyleAttributeName: paragraph,
             NSFontAttributeName: UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
-            NSStrokeWidthAttributeName: 1]
+            NSStrokeWidthAttributeName: -1]
         
         topText.defaultTextAttributes = memeTextAttributes
         bottomText.defaultTextAttributes = memeTextAttributes
@@ -66,8 +61,20 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         topText.delegate = self
         bottomText.delegate = self
         
+        topText.text = "TOP"
+        bottomText.text = "BOTTOM"
+        
+        
     }
     
+    @IBAction func imageFromCamera(_ sender: Any) {
+        
+        let imagePicker = UIImagePickerController()
+        imagePicker.delegate = self
+        imagePicker.sourceType = .camera
+        present(imagePicker, animated: true, completion: nil)
+        
+    }
     
     @IBAction func pickImage(_ sender: Any) {
         
@@ -160,7 +167,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     func save() {
-
+        
         let meme = Meme(topText: topText.text!, bottomText: bottomText.text!, originalImage: imageShow.image!, memedImage: generateMemedImage())
     }
     
