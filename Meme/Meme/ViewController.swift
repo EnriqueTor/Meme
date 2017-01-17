@@ -41,33 +41,34 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     @IBAction func imageFromCamera(_ sender: Any) {
         
-        let imagePicker = UIImagePickerController()
-        imagePicker.delegate = self
-        imagePicker.navigationBar.tintColor = UIColor.white
-        imagePicker.sourceType = .camera
-        present(imagePicker, animated: true, completion: nil)
+        presentPicker(withSourceType: .camera)
         
     }
     
     @IBAction func pickImage(_ sender: Any) {
-       pickPhotoFromAlbum()
+       
+        pickPhotoFromAlbum()
+    
     }
     
     
     @IBAction func cancelMeme(_ sender: Any) {
+    
         cleanMeme()
+    
     }
     
     @IBAction func sharePressed(_ sender: Any) {
         
         let meme = generateMemedImage()
+        
         let ac = UIActivityViewController(activityItems: [meme], applicationActivities: nil)
         present(ac, animated: true, completion: nil)
         
         ac.completionWithItemsHandler = {
-            (s, ok, items, error) in
+            (_, succesful, _, _) in
             
-            if ok {
+            if succesful {
                 self.save()
                 self.cleanMeme()
             }
@@ -98,27 +99,11 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     func setupView() {
         
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.alignment = .center
-        
-        let memeTextAttributes:[String:Any] = [
-            NSForegroundColorAttributeName: UIColor.white,
-            NSStrokeColorAttributeName: UIColor.black,
-            NSParagraphStyleAttributeName: paragraph,
-            NSFontAttributeName: UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
-            NSStrokeWidthAttributeName: -1]
-        
-        topText.defaultTextAttributes = memeTextAttributes
-        bottomText.defaultTextAttributes = memeTextAttributes
-        
-        topText.delegate = self
-        bottomText.delegate = self
         
         share.isEnabled = false
         addPhoto.isUserInteractionEnabled = true
-        
-        topText.placeholder = "add text"
-        bottomText.placeholder = "add text"
+        configure(textField: topText, withText: "add text")
+        configure(textField: bottomText, withText: "add text")
 
     }
     
@@ -135,15 +120,15 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        
         dismiss(animated: true, completion: nil)
+        
     }
     
     func pickPhotoFromAlbum() {
-        let imagePicker = UIImagePickerController()
-        imagePicker.delegate = self
-        imagePicker.navigationBar.tintColor = UIColor.white
-        imagePicker.sourceType = .photoLibrary
-        present(imagePicker, animated: true, completion: nil)
+        
+        presentPicker(withSourceType: .photoLibrary)
+        
     }
 
     
@@ -168,14 +153,24 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     func subscribeToKeyboardNotifications() {
         
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: .UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(_:)), name: .UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(keyboardWillShow(_:)),
+                                               name: .UIKeyboardWillShow,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(keyboardWillHide(_:)),
+                                               name: .UIKeyboardWillHide,
+                                               object: nil)
     }
     
     func unsubscribeFromKeyboardNotifications() {
         
-        NotificationCenter.default.removeObserver(self, name: .UIKeyboardWillShow, object: nil)
-        NotificationCenter.default.removeObserver(self, name: .UIKeyboardWillHide, object: nil)
+        NotificationCenter.default.removeObserver(self,
+                                                  name: .UIKeyboardWillShow,
+                                                  object: nil)
+        NotificationCenter.default.removeObserver(self,
+                                                  name: .UIKeyboardWillHide,
+                                                  object: nil)
     }
     
     func keyboardWillHide(_ notification:Notification) {
@@ -185,33 +180,74 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     func generateMemedImage() -> UIImage {
         
-        self.navigationController?.isNavigationBarHidden = true
-        navigationController?.setToolbarHidden(true, animated: false)
+        configureBars(hidden: true)
         
         UIGraphicsBeginImageContext(self.view.frame.size)
         view.drawHierarchy(in: self.view.frame, afterScreenUpdates: true)
         let memedImage:UIImage = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
         
-        self.navigationController?.isNavigationBarHidden = false
+        configureBars(hidden: false)
         
         return memedImage
     }
     
     func save() {
         
-        let meme = Meme(topText: topText.text!, bottomText: bottomText.text!, originalImage: imageShow.image!, memedImage: generateMemedImage())
+        _ = Meme(topText: topText.text!, 
+                        bottomText: bottomText.text!,
+                        originalImage: imageShow.image!,
+                        memedImage: generateMemedImage())
         
         UIImageWriteToSavedPhotosAlbum(generateMemedImage(), nil, nil, nil)
         
     }
     
     func cleanMeme() {
+    
         topText.text = nil
         bottomText.text = nil
         imageShow.image = nil
         share.isEnabled = false
         addPhoto.isHidden = false
+        
+    }
+    
+    func presentPicker(withSourceType source: UIImagePickerControllerSourceType){
+        
+        let imagePicker = UIImagePickerController()
+        
+        imagePicker.delegate = self
+        imagePicker.navigationBar.tintColor = UIColor.white
+        imagePicker.sourceType = source
+        
+        present(imagePicker, animated: true, completion: nil)
+    
+    }
+    
+    func configureBars(hidden: Bool) {
+        self.navigationController?.isNavigationBarHidden = hidden
+
+    }
+    
+    func configure(textField: UITextField, withText text: String) {
+        
+        let paragraph = NSMutableParagraphStyle()
+        paragraph.alignment = .center
+        
+        let memeTextAttributes:[String:Any] = [
+            NSForegroundColorAttributeName: UIColor.white,
+            NSStrokeColorAttributeName: UIColor.black,
+            NSParagraphStyleAttributeName: paragraph,
+            NSFontAttributeName: UIFont(name: "HelveticaNeue-CondensedBlack", size: 40)!,
+            NSStrokeWidthAttributeName: -1]
+        
+        textField.defaultTextAttributes = memeTextAttributes
+        
+        textField.delegate = self
+
+        textField.placeholder = text
+        
     }
     
 }

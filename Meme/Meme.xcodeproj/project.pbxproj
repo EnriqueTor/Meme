@@ -101,10 +101,10 @@
 		BB3F29E81E2D34C8005CAC08 /* Meme */ = {
 			isa = PBXGroup;
 			children = (
-				BB3F2A1E1E2D6720005CAC08 /* Controller */,
 				BB3F2A1F1E2D6725005CAC08 /* Model */,
-				BB3F2A1D1E2D6719005CAC08 /* Support Files */,
 				BB3F2A1C1E2D670B005CAC08 /* View */,
+				BB3F2A1E1E2D6720005CAC08 /* Controller */,
+				BB3F2A1D1E2D6719005CAC08 /* Support Files */,
 			);
 			path = Meme;
 			sourceTree = "<group>";
